@@ -7,7 +7,7 @@
 ---
 
 ## Abstract
-
+ 
 This whitepaper presents a new approach to backend architecture designed for the age of AI-native systems. It introduces a composable framework built around three pillars: the **Model–Control–Projection (MCP)** pattern, the **Tool Context Protocol (TCP)**, and a multi-tier **AI Agent Framework**. Together, these components deliver an adaptive, context-driven backend capable of orchestrating tools, workflows, and data sources in real time.
 
 Leveraging JWT-scoped context, semantic embeddings, and schema-aligned reasoning, the architecture achieves improved runtime safety, scalability, and extensibility. Empirical validation confirms measurable performance gains and robust isolation — establishing this as a commercially viable blueprint for secure AI infrastructure.
@@ -54,6 +54,15 @@ graph TD
 - **Model Layer**: Centralizes domain models, performs validation, and ensures data consistency
 - **Control Layer**: Acts as the trust boundary, sanitizing inputs, validating agent plans, and enforcing schema conformance
 - **Projection Layer**: Adapts outputs into structured APIs or natural‑language surfaces for LLM or UI consumption
+
+### Enterprise Integration Capabilities
+
+The architecture provides **zero-disruption integration** with existing enterprise infrastructure:
+
+- **REST API Wrapping**: Existing APIs become discoverable tools through TCP registration
+- **Database Connectivity**: Direct PostgreSQL, MySQL, MongoDB, Oracle integration
+- **Legacy Protocols**: SOAP, gRPC, and custom systems supported via adapters
+- **Migration Path**: Traditional services require only TCP metadata registration - no code changes needed
 
 ### Security and Trust Controls
 
@@ -171,8 +180,8 @@ All plans must conform to TCP schemas; invalid or unsafe operations are rejected
 
 1. **JWT Context Validation**: Agent permissions verified for customer data access
 2. **AI Planning**: LLM generates 4-step plan (customer lookup → performance analysis → billing check → response generation)
-3. **Tool Discovery**: Semantic search finds CustomerProfileTool, ProductUsageTool, BillingAnalyticsTool
-4. **Execution**: Plan executes with automatic tier-2 escalation for billing analysis
+3. **Tool Discovery**: Semantic search finds CustomerProfileTool (Salesforce API wrapper), ProductUsageTool (PostgreSQL connector), BillingAnalyticsTool (legacy Oracle system)
+4. **Execution**: Plan executes across multiple data sources with automatic tier-2 escalation for billing analysis
 5. **Response**: Comprehensive answer with SLA credit calculation and next steps
 
 ### Results
@@ -235,7 +244,80 @@ This ensures consistent evolution without disrupting multi-tenant systems.
 
 ---
 
-## 9. Implementation Readiness
+## 9. Enterprise Tool Selection Strategy
+
+### Strategic Integration by Domain
+
+**Customer Relationship Management**: Salesforce, HubSpot, Zendesk, Stripe, Twilio
+**Enterprise Resource Planning**: SAP S/4HANA, Oracle NetSuite, Workday, Jira, ServiceNow  
+**Data Analytics**: Snowflake, Databricks, Tableau, PowerBI, Google Analytics
+**Security & Compliance**: Okta, Splunk, CrowdStrike, DocuSign, HashiCorp Vault
+
+### Tool Selection Matrix
+
+| Tool Category | Business Impact | Onboarding Priority | ROI Timeline |
+|---------------|-----------------|---------------------|--------------|
+| **Core Database APIs** | High | Phase 1 - Week 1 | 15-25% workflow acceleration |
+| **Primary CRM** | High | Phase 1 - Week 2 | 20-30% response improvement |
+| **Authentication** | Critical | Phase 1 - Week 3 | Security compliance |
+| **Payment/Billing** | High | Phase 2 - Week 6 | Revenue process automation |
+| **Analytics** | Medium | Phase 2 - Week 8 | Data-driven insights |
+| **Communication** | Medium | Phase 2 - Week 10 | Team productivity |
+
+### Industry-Specific Examples
+
+**Customer Success Platform**: 15+ tools, 12-week onboarding (CRM-focused)
+**Financial Services**: 20+ tools, 16-week onboarding (compliance-heavy)
+**Healthcare**: 18+ tools, 20-week onboarding (HIPAA validation required)
+
+---
+
+## 10. Security and Trust Architecture
+
+The Control Layer serves as the **unbreachable Trust Boundary** for all AI-generated logic and tenant-specific execution. It is the single enforcement point for security and compliance across the entire system.
+
+### 10.1 Control Layer Enforcement Logic
+
+The Control Layer performs continuous verification checks on every plan before execution, ensuring **runtime safety** and **tenant isolation**.
+
+1. **Plan Attestation Verification**:
+   * The raw AI-generated Plan DSL is hashed.
+   * This hash is compared against a securely stored integrity ledger, confirming the plan has not been tampered with since generation and validation against the known TCP schemas.
+2. **Schema Conformance Check**:
+   * The DSL is rigorously validated against the **Formal Plan DSL Schema**.
+   * Each step's `input` and `output` parameters are checked against the specific **TCP Input/Output Schemas** for the referenced tool. Mismatching data types or unexpected fields result in immediate rejection.
+3. **JWT Contextual Validation (Tenant Isolation)**:
+   * The JWT claims (`tenant_id`, `user_roles`) are parsed.
+   * The execution engine ensures the tools called (`tool` field in DSL) have a `scope` that includes the user's tenant or role. **Cross-tenant or unauthorized scope calls are rejected**.
+4. **Credential Escrow Injection**:
+   * Upon validation, the Control Layer injects a **per-step, time-limited credential** (e.g., an AWS STS temporary token or Vault-issued secret) tailored *only* for that tool's specific operation. The token is revoked immediately upon step completion or timeout.
+
+### 10.2 Security Controls and Compliance
+
+The system implements a **Zero-Trust** security model, where every request, plan, and tool execution step is continuously verified.
+
+```typescript
+interface SecurityControls {
+  // Authentication: High-assurance validation of the user context (JWT)
+  authentication: "RS256_asymmetric_verification"; 
+
+  // Authorization: Fine-grained access based on user role and tenant context
+  authorization: "fine_grained_RBAC_via_JWT_claims"; 
+
+  // Data Protection: Encryption for data at rest and in transit
+  dataProtection: "AES_256_encryption_and_TLS_1_3"; 
+
+  // Threat Monitoring: Behavioral analysis to detect execution anomalies
+  monitoring: "ML_behavioral_analysis_on_plan_execution"; 
+}
+```
+
+- **Prompt Injection Defense**: Implemented via **semantic filters** (e.g., using a specialized SLM or embedding similarity to detect malicious instructions) applied at the input ingestion stage in the Projection Layer.
+- **Compliance Blueprint**: The architecture is designed to meet stringent regulatory standards, including **SOC 2, GDPR, PCI DSS, and HIPAA**, primarily through the robust **Tenant Isolation** and **Credential Escrow** mechanisms.
+
+---
+
+## 11. Implementation Readiness
 
 ### Technology Stack
 - **Runtime**: Node.js 18+ (Control/Projection), Python 3.11+ (AI/Model)
@@ -253,26 +335,7 @@ This ensures consistent evolution without disrupting multi-tenant systems.
 
 ---
 
-## 10. Security Architecture
-
-### Threat Protection
-- **STRIDE Analysis**: Comprehensive threat modeling with specific mitigations
-- **Zero-Trust Implementation**: Continuous verification at API, control, and execution layers
-- **Compliance**: SOC 2, GDPR, PCI DSS, HIPAA validation
-
-### Security Controls
-```typescript
-interface SecurityControls {
-  authentication: "RS256_asymmetric_verification";
-  authorization: "fine_grained_RBAC";
-  dataProtection: "AES_256_encryption";
-  monitoring: "ML_behavioral_analysis";
-}
-```
-
----
-
-## 11. Conclusion
+## 12. Conclusion
 
 The **MCP + TCP + Agent** framework represents a major step forward in backend evolution. It merges structured software engineering with semantic intelligence, enabling secure, context‑aware automation across many domains.
 
