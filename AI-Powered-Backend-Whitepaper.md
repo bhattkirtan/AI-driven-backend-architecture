@@ -214,12 +214,11 @@ All plans must conform to TCP schemas; invalid or unsafe operations are rejected
 
 ### Results
 
-- **Response time**: 1.4 minutes (vs. 8.2 minutes traditional) **📈 [View Live Dashboard](https://metrics.ai-backend-architecture.com/techcorp)**
+- **Response time**: 1.4 minutes (vs. 8.2 minutes traditional) 
 - **Agent productivity**: 28 tickets/day (vs. 12 traditional)
 - **Customer satisfaction**: 8.9/10 (vs. 6.8/10)
 - **Escalation time**: 2-4 minutes with context preservation
 
-**🎮 [Try Interactive TechCorp Simulation](https://simulation.ai-backend-architecture.com/techcorp-demo)**
 
 ---
 
