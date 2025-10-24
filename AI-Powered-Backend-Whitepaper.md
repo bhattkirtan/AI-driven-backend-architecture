@@ -405,4 +405,4 @@ Complete transformation with 4.2-month typical payback period.
 
 ---
 
-*© 2025 Company Name. Enterprise-ready AI infrastructure architecture.*
+*© 2025 Kirtan Bhatt. Enterprise-ready AI infrastructure architecture.*
