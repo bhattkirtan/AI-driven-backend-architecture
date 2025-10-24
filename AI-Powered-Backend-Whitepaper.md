@@ -4,8 +4,6 @@
 
 *Comprehensive Technical Whitepaper — October 2025*
 
-**📊 [Interactive Demo](https://demo.ai-backend-architecture.com) | 🎥 [5-Min Video Overview](https://videos.ai-backend-architecture.com/overview) | 💬 [Live Q&A](https://discord.gg/ai-backend-community)**
-
 ---
 
 ## Table of Contents
