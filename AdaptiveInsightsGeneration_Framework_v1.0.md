@@ -17,17 +17,57 @@ The guiding principle is to **separate expensive batch computation (Pre-Analytic
 
 ## 2. Architecture Diagram
 
-![AIG Architecture Diagram](A_flowchart_diagram_in_vector_graphic_design_illus.png)  
-*High-level data and AI flow for Adaptive Insight Generation.*
+### Adaptive Insight Generation (AIG) — Text-Based Architecture Flow
 
----
+```
+[ DATA SOURCES ]
+  ├─ Transactional: royalties, invoices, plays, logs
+  ├─ Non-Transactional: rightsholder, metadata, dimensions
+  └─ External: currency, DSP rates, benchmarks
+        │
+        ▼
+[ DATA LAKEHOUSE ]
+  (Parquet / Iceberg / Delta on GCS, S3, or ADLS)
+  ├─ BRONZE: raw ingestion
+  ├─ SILVER: cleaned facts & standardized dimensions
+  ├─ GOLD: curated analytics marts (aggregated facts)
+  └─ Outputs structured JSON + text "insight chunks"
+        │
+        ▼
+[ INSIGHT GENERATION & CURATION (Pre-Analytics Engine) ]
+  ├─ Metric computation (dbt / Spark / Trino / DuckDB)
+  ├─ Trend & anomaly detection
+  ├─ Narrative & validation engine (LLM + rules)
+  └─ Embedding + Registrar → writes to RAG index
+        │
+        ▼
+[ INSIGHT STORAGE + RAG INDEX ]
+  ├─ Vector database: pgvector / Pinecone / Weaviate / Chroma
+  ├─ Each record: {embedding, summary_text, metadata: (entity, period, metric)}
+  └─ Metadata store: Postgres / Elastic / Bigtable
+        │
+        ▼
+[ INSIGHT API / APPLICATION LAYER ]
+  ├─ REST / GraphQL API (FastAPI, Node, Go)
+  ├─ Retrieves top-k insights via hybrid RAG search
+  ├─ Applies metadata filters (period, region, rightsholder, etc.)
+  ├─ Calls small LLM for reasoning & narrative synthesis
+  └─ Returns grounded explanations + source references
+        │
+        ▼
+[ USER INTERFACE / DASHBOARD / BOT ]
+  ├─ Web UI, Slack, or chat interface
+  ├─ Query templates or controlled natural language
+  └─ Feedback capture ("Not relevant" → logs gap)
+        │
+        ▼
+[ FEEDBACK + AUTO-LEARNING LOOP ]
+  ├─ Logs unanswered / low-confidence queries
+  ├─ Detects missing metrics or entities
+  └─ Triggers new pre-analytics computation for coverage expansion
+```
 
-## 3. Key Layers and Enhancements
-
-### **1. Data Sources**
-- **Transactional:** Royalties, invoices, plays, logs  
-- **Non-Transactional:** Rightsholder metadata, dimensions, catalog information  
-- **External:** Currency rates, DSP benchmarks, economic indicators  
+*This ASCII-style diagram captures the data and insight flow of the AIG architecture without requiring any images.*
 
 ---
 
